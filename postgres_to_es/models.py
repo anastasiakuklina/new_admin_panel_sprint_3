@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field, validator
 
 FIELD_ROLE = {
@@ -35,15 +33,15 @@ class Movie(BaseModel):
     Модель фильма, которая по данным из postgres бд получает данные, соответствующие ES индексу.
     """
     id: str
-    imdb_rating: Optional[int] = Field(alias='rating')
+    imdb_rating: int | None = Field(alias='rating')
     title: str
-    description: Optional[str]
-    genre: Optional[list[str]] = Field(alias='genres')
-    director: Optional[list[dict]] = Field(alias='persons')
-    actors_names: Optional[list[dict]] = Field(alias='persons')
-    writers_names: Optional[list[dict]] = Field(alias='persons')
-    actors: Optional[list[dict]] = Field(alias='persons')
-    writers: Optional[list[dict]] = Field(alias='persons')
+    description: str | None
+    genre: list[str] | None = Field(alias='genres')
+    director: list[dict] | None = Field(alias='persons')
+    actors_names: list[dict] | None = Field(alias='persons')
+    writers_names: list[dict] | None = Field(alias='persons')
+    actors: list[dict] | None = Field(alias='persons')
+    writers: list[dict] | None = Field(alias='persons')
 
 
     # validators

@@ -1,7 +1,8 @@
 import json
 
+import backoff
 import requests
-from postgres_to_es.models import Movie
+from models import Movie
 
 
 class ElasticSearchUploader:
@@ -9,6 +10,7 @@ class ElasticSearchUploader:
         self.url = url
         self.index = index
 
+    @backoff.on_exception(backoff.expo, (requests.exceptions.ConnectionError,))
     def upload(self, movies: list[Movie]):
         data_list = list()
         for movie in movies:

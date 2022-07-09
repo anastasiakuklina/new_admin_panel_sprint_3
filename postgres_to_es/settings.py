@@ -1,24 +1,46 @@
-import os
-from pathlib import Path
+from pydantic import BaseSettings, HttpUrl, BaseModel, PostgresDsn
 
-from dotenv import load_dotenv
+from sql_queries import MOVIES_SQL_BY_MODIFIED_MOVIES
 
-load_dotenv()
 
-SQLITE_DB = 'db.sqlite'
+class EntityParams(BaseModel):
+    sql: str
+    modified_key: str
+    id_key: str
 
-POSTGRES_PARAMS = {
-    'host': os.environ.get('POSTGRES_HOST'),
-    'port': os.environ.get('POSTGRES_PORT'),
-    'dbname': os.environ.get('POSTGRES_DB'),
-    'user': os.environ.get('POSTGRES_USER'),
-    'password': os.environ.get('POSTGRES_PASSWORD')
-}
 
-PACK_SIZE = 500
+class Settings(BaseSettings):
+    POSTGRES_DSN: PostgresDsn
+    ES_URL: str
+    ES_INDEX = 'movies'
 
-BASE_DIR = Path(__file__).resolve().parent
-FILE_STORAGE_PATH = os.path.join(BASE_DIR, 'app_state.json')
+    PACK_SIZE = 500
+    FILE_STORAGE_PATH = 'app_state.json'
+    START_TIME = '1900-01-01 00:00:00'
+    SLEEP_TIME = 600
+    ENTITIES: dict[str, EntityParams] = {
+        'film_work': EntityParams(
+            sql=MOVIES_SQL_BY_MODIFIED_MOVIES,
+            modified_key='filmwork_modified',
+            id_key='filmwork_id'),
+        'genre': EntityParams(
+            sql=MOVIES_SQL_BY_MODIFIED_MOVIES,
+            modified_key='genre_modified',
+            id_key='genre_filmwork_id'),
+        'person': EntityParams(
+            sql=MOVIES_SQL_BY_MODIFIED_MOVIES,
+            modified_key='person_modified',
+            id_key='person_filmwork_id')
+    }
 
-ELASTICSEARCH_URL = 'http://127.0.0.1:9200/'
-ELASTICSEARCH_INDEX = 'movies'
+    class Config:
+        env_file = '../.env'
+        env_file_encoding = 'utf-8'
+        fields = {
+            'POSTGRES_DSN': {
+                'env': 'POSTGRES_DSN',
+            },
+            'ES_URL': {
+                'env': 'ES_URL',
+            },
+        }

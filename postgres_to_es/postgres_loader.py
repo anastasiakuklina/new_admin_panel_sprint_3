@@ -1,3 +1,5 @@
+import backoff
+import psycopg2
 from psycopg2._psycopg import cursor as Cursor
 
 from models import Movie
@@ -8,6 +10,7 @@ class PostgresLoader:
         self.cursor = cursor
         self.pack_size = pack_size
 
+    @backoff.on_exception(backoff.expo, (psycopg2.InterfaceError, psycopg2.OperationalError))
     def read_movies(self, sql: str, modified: str, filmwork_id: str):
         """
         Вычитывает из базы данных фильмы, которые изменены после сохранённого состояния. Для состояния используется
